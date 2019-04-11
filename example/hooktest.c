@@ -1,12 +1,17 @@
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <string.h>
 #include "inlineHook.h"
 
 int (*old_puts)(const char *) = NULL;
 
 int new_puts(const char *string)
 {
-    old_puts("inlineHook success");
+    char *success = "== inlineHook success ==";
+    char *msg = (char *) malloc(strlen(string) + strlen(success));
+    sprintf(msg, "%s%s", string, success);
+    old_puts(msg);
+    return 0;
 }
 
 int hook()
@@ -37,4 +42,6 @@ int main()
     puts("test");
     unHook();
     puts("test");
+
+    return 0;
 }
