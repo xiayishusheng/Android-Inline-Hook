@@ -7,37 +7,47 @@
 
 #define TAG "nprop--->"
 
-char* getprop(char *key) {
-    static char val[PROP_VALUE_MAX];
+char *props[] = {"ro.build.version.sdk",
+                 "ro.hardware",
+                 "ro.product.device",
+                 "ro.product.brand",
+                 "ro.product.model",
+                 "ro.product.name",
+                 "ro.build.user"};
+int length = sizeof(props) / sizeof(props[0]);
+
+char *getprop(char *key)
+{
+    // static char val[PROP_VALUE_MAX];
+    char *val = malloc(PROP_VALUE_MAX);
+    memset(val, 0, sizeof(char) * PROP_VALUE_MAX);
     __system_property_get(key, val);
     return val;
 }
 
+void getprops1()
+{
+    for (int i = 0; i < length; i++)
+    {
+        printf("%s=%s\n", props[i], getprop(props[i]));
+    }
+}
+
+void getprops2()
+{
+    for (int i = 0; i < length; i++)
+    {
+        __android_log_print(ANDROID_LOG_DEBUG, TAG, "%s=%s", props[i], getprop(props[i]));
+    }
+}
+
 int main()
 {
-    // char sdk[PROP_VALUE_MAX];
-    // __system_property_get("ro.build.version.sdk", sdk);
-
-    printf("sdk=        %s\n", getprop("ro.build.version.sdk"));
-    printf("hardware=   %s\n", getprop("ro.hardware"));
-    printf("device=     %s\n", getprop("ro.product.device"));
-    printf("brand=      %s\n", getprop("ro.product.brand"));
-    printf("model=      %s\n", getprop("ro.product.model"));
-    printf("name=       %s\n", getprop("ro.product.name"));
-    printf("user=       %s\n", getprop("ro.build.user"));
-
+    getprops1();
     return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_example_frida_NativeProp_prop(JNIEnv *env, jclass obj, jstring packageName)
 {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "into prop");
-
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "sdk=        %s", getprop("ro.build.version.sdk"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "hardware=   %s", getprop("ro.hardware"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "device=     %s", getprop("ro.product.device"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "brand=      %s", getprop("ro.product.brand"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "model=      %s", getprop("ro.product.model"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "name=       %s", getprop("ro.product.name"));
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "user=       %s", getprop("ro.build.user"));
+    getprops2();
 }
